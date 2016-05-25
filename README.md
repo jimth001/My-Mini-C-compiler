@@ -8,5 +8,5 @@ My Mini C compiler during my Compilation Principle course.
 原框架见我的BIT Mini C compiler。
 2016.5.25
 
-# 更新：预处理及词法分析器cplScanner.java及说明文档
+### 更新：预处理及词法分析器cplScanner.java及说明文档
 2016.5.25
