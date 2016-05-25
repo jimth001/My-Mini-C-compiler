@@ -1,6 +1,7 @@
 # My-Mini-C-compiler
 My Mini C compiler during my Compilation Principle course.
-预处理与词法分析器
+#预处理与词法分析器
+#更多详细内容请查看doc下的文档
 ##一、	预处理与词法分析器实现目标(也即最终实现的功能)  
 1.	尽量保持和框架接口的一致性：  
 在词法分析通过时，生成的xml结构与框架标准一致，type标签使用数字定义，与原模块定义不同，因缺少原模块代码，无法得知完整单词type定义，且要自己实现语法分析和中间代码生成部分，只需最后保持四元组接口一致即可。  
@@ -15,7 +16,7 @@ My Mini C compiler during my Compilation Principle course.
 .pp1.c  除去单行注释结果  
 .pp2.c  除去所有注释结果  
 .pp3.c  完成include替换结果  
-[.pp1.h  .pp2.h  .pp3.h](若有#include “xx.h”且文件存在，则会生成)  
+\[.pp1.h  .pp2.h  .pp3.h\](若有#include “xx.h”且文件存在，则会生成)  
 .token.xml  词法分析结果  
 5.	支持的c语言特性：  
 1)	预处理功能:  
@@ -23,8 +24,8 @@ a)	支持宏替换和宏定义分析。
 错误的宏会报错（重定义的宏，缺少标识符等），并在分词结果的输出流（xml）中保留错误信息。  
 正确的宏会进行替换，宏不会作为单词保留在分词的输出流中。  
 宏替换会替换宏定义下方所有出现的非宏定义标识符。即支持VS的如下特性，若代码如下：  
-\\#define A 10  
-\\#define b A  
+  \#define A 10  
+  \#define b A  
 int t=b;  
 则b被替换为10；但是#define后的标识符不会被替换，若下方再有一个#define A，则会报重定义错误  
   
@@ -94,7 +95,7 @@ f)	支持识别的运算符分隔符：
 		operatorMap.put("=", new typeDescription("赋值运算符",75));  
 		operatorMap.put("{", new typeDescription("花括号s",76));  
 		operatorMap.put("}", new typeDescription("花括号e",77));  
-二、	程序的实现  
+##二、	程序的实现  
 1.	预处理部分：  
 先去除同行内注释，产生.pp1.c文件  
 然后以.pp1.c为输入，扫描源程序，将所有合法/**/对加入队列（先找到一个/*，再从此位置往后找*/，再找/*依此类推），并记录他们对应出现的行数。然后按队列顺序将他们替换成空串，并根据记录的行数加上对应的”\r\n“以保证代码行信息不改变，输出为.pp2.c  
@@ -120,7 +121,7 @@ DFA以单词流为输入，识别到合法的宏定义后会对后面的所有�
   
 这样上述步骤全部执行完后就会得到完成宏替换的单词流。若词法分析通过，单词流中将不含#define xx xx 语句。  
 		  
-三、	程序使用的主要方法（技术）  
+##三、	程序使用的主要方法（技术）  
 1.	使用二次扫描完成所有注释的删除  
 2.	使用DFA分词  
 3.	使用Hashmap建立词典查询关键字，运算符，分隔符  
@@ -128,354 +129,3 @@ DFA以单词流为输入，识别到合法的宏定义后会对后面的所有�
 5.	使用DFA处理宏定义  
 6.	使用HashMap建立定义各种查询表   
 7.	使用ArrayList建立程序中各种所需队列  
-四、	实验结果  
-使用input目录下的test.c文件进行测试  
-test.c内容修改如下：  
-  
-#include "mytest.h"  
-int main(int a, int b){	//main function  
-	int p=B;  
-	/*  
-    return a + b + A;  
-    */  
-}  
-mytest.h内容如下：   
-#define A 10  
-#define B A  
-生成的.pp3.c如下：  
-#define A 10  
-#define B A  
-  
-  
-int main(int a, int b){	  
-	int p=B;  
-	 
-  
-  
-}  
-执行后得到的xml如下：  
-<?xml version="1.0" encoding="UTF-8"?>  
-<project name="test.l">  
-  <tokens>  
-    <token>  
-      <number>8</number>  
-      <value>int</value>  
-      <type>17</type>  
-      <line>3</line>  
-      <valid>true</valid>   
-    </token>  
-    <token>  
-      <number>9</number>  
-      <value>main</value>  
-      <type>10004</type>  
-      <line>3</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>10</number>  
-      <value>(</value>  
-      <type>63</type>  
-      <line>3</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>11</number>  
-      <value>int</value>  
-      <type>17</type>  
-      <line>3</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>12</number>  
-      <value>a</value>  
-      <type>10004</type>  
-      <line>3</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>13</number>  
-      <value>,</value>  
-      <type>62</type>  
-      <line>3</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>14</number>  
-      <value>int</value>  
-      <type>17</type>  
-      <line>3</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>15</number>  
-      <value>b</value>  
-      <type>10004</type>  
-      <line>3</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>16</number>  
-      <value>)</value>  
-      <type>64</type>  
-      <line>3</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>17</number>  
-      <value>{</value>  
-      <type>76</type>  
-      <line>3</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>18</number>  
-      <value>int</value>  
-      <type>17</type>  
-      <line>4</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>19</number>  
-      <value>p</value>  
-      <type>10004</type>  
-      <line>4</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>20</number>  
-      <value>=</value>  
-      <type>75</type>  
-      <line>4</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>3</number>  
-      <value>10</value>  
-      <type>10000</type>  
-      <line>4</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>22</number>  
-      <value>;</value>  
-      <type>74</type>  
-      <line>4</line>  
-      <valid>true</valid>  
-    </token>  
-    <token>  
-      <number>23</number>  
-      <value>}</value>  
-      <type>77</type>  
-      <line>8</line>  
-      <valid>true</valid>  
-    </token>  
-  </tokens>  
-</project>  
-从上面的结果可以看到，num记录是从8开始的，说明前面有8个宏定义相关的符号被删掉了。程序并没有将最终的单词从0开始编号。后续语法分析的设计也不依据此标号，而是由从xml文件读取的顺序确定单词是单词流中的第几个。
-
-将mytest.h修改如下：
-#define A 10
-#define B A
-#define A
-	执行后得到的xml如下：
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="test.l">
-  <tokens>
-    <token>
-      <number>8</number>
-      <value>#</value>
-      <type>100</type>
-      <line>3</line>
-      <valid>true</valid>
-      <typeDescription>预编译符号</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\mytest.h</src>
-    </token>
-    <token>
-      <number>9</number>
-      <value>define</value>
-      <type>101</type>
-      <line>3</line>
-      <valid>true</valid>
-      <typeDescription>宏定义标识符</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\mytest.h</src>
-    </token>
-    <token>
-      <number>10</number>
-      <value>A</value>
-      <type>10004</type>
-      <line>3</line>
-      <valid>false</valid>
-      <typeDescription>identifier</typeDescription>
-      <wrongInf>重定义的宏</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\mytest.h</src>
-    </token>
-    <token>
-      <number>11</number>
-      <value>int</value>
-      <type>17</type>
-      <line>3</line>
-      <valid>true</valid>
-      <typeDescription>kw17</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>12</number>
-      <value>main</value>
-      <type>10004</type>
-      <line>3</line>
-      <valid>true</valid>
-      <typeDescription>identifier</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>13</number>
-      <value>(</value>
-      <type>63</type>
-      <line>3</line>
-      <valid>true</valid>
-      <typeDescription>括号s</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>14</number>
-      <value>int</value>
-      <type>17</type>
-      <line>3</line>
-      <valid>true</valid>
-      <typeDescription>kw17</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>15</number>
-      <value>a</value>
-      <type>10004</type>
-      <line>3</line>
-      <valid>true</valid>
-      <typeDescription>identifier</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>16</number>
-      <value>,</value>
-      <type>62</type>
-      <line>3</line>
-      <valid>true</valid>
-      <typeDescription>逗号算符</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>17</number>
-      <value>int</value>
-      <type>17</type>
-      <line>3</line>
-      <valid>true</valid>
-      <typeDescription>kw17</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>18</number>
-      <value>b</value>
-      <type>10004</type>
-      <line>3</line>
-      <valid>true</valid>
-      <typeDescription>identifier</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>19</number>
-      <value>)</value>
-      <type>64</type>
-      <line>3</line>
-      <valid>true</valid>
-      <typeDescription>括号e</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>20</number>
-      <value>{</value>
-      <type>76</type>
-      <line>3</line>
-      <valid>true</valid>
-      <typeDescription>花括号s</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>21</number>
-      <value>int</value>
-      <type>17</type>
-      <line>4</line>
-      <valid>true</valid>
-      <typeDescription>kw17</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>22</number>
-      <value>p</value>
-      <type>10004</type>
-      <line>4</line>
-      <valid>true</valid>
-      <typeDescription>identifier</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>23</number>
-      <value>=</value>
-      <type>75</type>
-      <line>4</line>
-      <valid>true</valid>
-      <typeDescription>赋值运算符</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>3</number>
-      <value>10</value>
-      <type>10000</type>
-      <line>4</line>
-      <valid>true</valid>
-      <typeDescription>#define  B</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>25</number>
-      <value>;</value>
-      <type>74</type>
-      <line>4</line>
-      <valid>true</valid>
-      <typeDescription>语句分隔符</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-    <token>
-      <number>26</number>
-      <value>}</value>
-      <type>77</type>
-      <line>8</line>
-      <valid>true</valid>
-      <typeDescription>花括号e</typeDescription>
-      <wrongInf>无</wrongInf>
-      <src>D:\工程项目\java\BIT-MiniCC-Clean\input\test.c</src>
-    </token>
-  </tokens>
-</project>
-这是词法分析不通过时的结果，我们可以看到报错信息为重定义的宏，错误行数以及它所在的源文件为mytest.h
-
-
-限于文章篇幅，关于更多的“一. 预处理与词法分析器实现目标”中提到的所支持的特性，请自行测试。
-五、	心得体会和收获
-通过此次实验使我对c语言的一些特性更加了解，如宏替换的规则，inlcude规则，数值常量的定义规则，转义表等。通过自己设计DFA加深了对DFA，正则文法的理解。熟悉了java中正则表达式的使用和xml的读写。
