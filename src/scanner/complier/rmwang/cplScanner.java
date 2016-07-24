@@ -276,48 +276,7 @@ class charType{
 		return false;
 	}
 }
-class token{
-	public static int nilType=-1;
-	int id;
-	String value;
-	int type;
-	int line;
-	boolean valid;
-	String typedes;
-	String wrongInf;
-	String srcString;
- 	public token(int id,String value,int type,int line,boolean valid,String src)
-	{
-		this.id=id;
-		this.value=value;
-		this.type=type;
-		this.line=line;
-		this.valid=valid;
-		this.typedes="";
-		this.wrongInf="无";
-		this.srcString=src;
-	}
-	public token()
-	{
-		id=0;
-		value="";
-		type=nilType;
-		line=-1;
-		valid=true;
-		srcString="";
-	}
-	public token(token t)
-	{
-		this.id=t.id;
-		this.value=t.value;
-		this.type=t.type;
-		this.line=t.line;
-		this.valid=t.valid;
-		this.typedes=t.typedes;
-		this.wrongInf=t.wrongInf;
-		this.srcString=t.srcString;
-	}
-}
+
 class DFA{
 	public int index;
 	public String inputString;
@@ -327,13 +286,13 @@ class DFA{
 	public int def_index;
 	public int rec_index_def;
 	public char nowChar;
-	public ArrayList<token> myTokenArrayList;
+	public ArrayList<Token> myTokenArrayList;
 	public int wordcounter;
 	public int linecounter;
 	public int thislineforDEF;
 	public dictionary myDictionary;
-	public ArrayList<token> tokenListForDEF;
-	public ArrayList<token> tokenListForDEFReplace;
+	public ArrayList<Token> tokenListForDEF;
+	public ArrayList<Token> tokenListForDEFReplace;
 	public HashMap<String,String> defineID;
 	public ArrayList<includeInf> includeInfArrayList;
 	public String srcString;
@@ -413,12 +372,12 @@ class DFA{
 	}
 	public boolean isIDofDEF(int i)
 	{
-		token t=myTokenArrayList.get(i);
+		Token t=myTokenArrayList.get(i);
 		if(i-2<0)
 			return false;
 		else {
-			token lt=myTokenArrayList.get(i-1);
-			token llt=myTokenArrayList.get(i-2);
+			Token lt=myTokenArrayList.get(i-1);
+			Token llt=myTokenArrayList.get(i-2);
 			if(lt.type==myDictionary.identifierMap.get("define").key&&llt.type==myDictionary.operatorMap.get("#").key)
 			{
 				if(i==2&&lt.line==llt.line&&lt.line==t.line)
@@ -427,7 +386,7 @@ class DFA{
 				}
 				if(i>2)
 				{
-					token lllt=myTokenArrayList.get(i-3);
+					Token lllt=myTokenArrayList.get(i-3);
 					if(lt.line==llt.line&&lt.line==t.line&&lllt.line!=t.line)
 					{
 						return true;
@@ -442,9 +401,9 @@ class DFA{
 		if(success)//合法的宏定义
 		{
 			
-			token t=tokenListForDEF.get(tokenListForDEF.size()-1);//取标识符
+			Token t=tokenListForDEF.get(tokenListForDEF.size()-1);//取标识符
 			//System.out.println("合法宏："+t.value);
-			token c_pToken;
+			Token c_pToken;
 			int i=def_index+1;//下一行的起始位置
 			//int len=myTokenArrayList.size();
 			while(i<myTokenArrayList.size())//
@@ -457,11 +416,11 @@ class DFA{
 					for(int j=0;j<size;j++)
 					{
 						
-						token tmpToken=new token(tokenListForDEFReplace.get(j));
+						Token tmpToken=new Token(tokenListForDEFReplace.get(j));
 						tmpToken.line=c_pToken.line;//更正行数
 						tmpToken.typedes="#define"+"  "+t.value;
 						//System.out.println(tmpToken.typedes+"  "+i);
-						myTokenArrayList.add(i+j,new token(tmpToken));
+						myTokenArrayList.add(i+j,new Token(tmpToken));
 					}
 					i+=size;
 					myTokenArrayList.remove(i);
@@ -472,7 +431,7 @@ class DFA{
 			}
 			for(i=rec_index_def;i<myTokenArrayList.size();)
 			{
-				token tk=myTokenArrayList.get(i);
+				Token tk=myTokenArrayList.get(i);
 				if(tk.line==thislineforDEF)
 				{
 					myTokenArrayList.remove(i);
@@ -490,7 +449,7 @@ class DFA{
 			tokenListForDEFReplace.clear();
 		}
 	}
-	public void stateTransAndActionForDefine(token t)
+	public void stateTransAndActionForDefine(Token t)
 	{
 		switch (def_state) {
 		case sInit:thislineforDEF=t.line;
@@ -498,7 +457,7 @@ class DFA{
 			if(t.type==myDictionary.operatorMap.get("#").key)
 			{
 				def_state=sSharp;
-				tokenListForDEF.add(new token(t));
+				tokenListForDEF.add(new Token(t));
 				return;
 			}
 			else{
@@ -516,7 +475,7 @@ class DFA{
 				typeDescription tDescription=myDictionary.identifierMap.get("define");
 				if(t.type==tDescription.key)
 				{
-					tokenListForDEF.add(new token(t));
+					tokenListForDEF.add(new Token(t));
 					def_state=sDefine;
 				}
 				else {
@@ -558,7 +517,7 @@ class DFA{
 						def_state=sNoSharp_m;
 					}
 					else{
-						tokenListForDEF.add(new token(t));
+						tokenListForDEF.add(new Token(t));
 						def_state=sID;
 						defineID.put(t.value, t.value);
 					}
@@ -590,7 +549,7 @@ class DFA{
 		case sID:
 			if(t.line==thislineforDEF)
 			{
-				tokenListForDEFReplace.add(new token(t));
+				tokenListForDEFReplace.add(new Token(t));
 			}
 			else {
 				goBackIndexForDEF();
@@ -614,9 +573,9 @@ class DFA{
 		def_index=0;
 		inputString=in;
 		nowString="";
-		myTokenArrayList=new ArrayList<token>();
-		tokenListForDEF=new ArrayList<token>();
-		tokenListForDEFReplace=new ArrayList<token>();
+		myTokenArrayList=new ArrayList<Token>();
+		tokenListForDEF=new ArrayList<Token>();
+		tokenListForDEFReplace=new ArrayList<Token>();
 		defineID=new HashMap<String,String>();
 		linecounter=1;
 		wordcounter=0;
@@ -632,7 +591,7 @@ class DFA{
 	}
 	public void addWord(int type,boolean valid)//同时负责清空缓冲nowString
 	{
-		myTokenArrayList.add(new token(wordcounter,nowString,type,linecounter,valid,""));
+		myTokenArrayList.add(new Token(wordcounter,nowString,type,linecounter,valid,srcString));
 		wordcounter++;
 		nowString="";
 	}
@@ -770,7 +729,7 @@ class DFA{
 			case charType.equalOperator:addWord(op_wordtype, true);dfa_state=state_init;return;
 			case charType.minusflag:addWord(op_wordtype, true);dfa_state=state_init;return;
 			/*case charType.number:
-				token t;
+				Token t;
 				if(wordcounter>0)
 				{
 					t=myTokenArrayList.get(wordcounter-1);
@@ -816,7 +775,7 @@ class DFA{
 		}
 		for(i=0;i<myTokenArrayList.size();i++)
 		{
-			token t=myTokenArrayList.get(i);
+			Token t=myTokenArrayList.get(i);
 			switch (t.type) {
 			case op_wordtype:
 				//System.out.println("op:"+t.value);
@@ -858,18 +817,18 @@ class DFA{
 		}
 		while(def_index<myTokenArrayList.size())
 		{
-			token tmpToken=myTokenArrayList.get(def_index);
+			Token tmpToken=myTokenArrayList.get(def_index);
 			stateTransAndActionForDefine(tmpToken);
 			def_index++;
 		}
 		int j=includeInfArrayList.size()-1;
-		if(j>=0)
+		if(j>=0)//包括了头文件
 		{
 			includeInf incInf=includeInfArrayList.get(j);
 			int offsetsum=incInf.lineOffset;
 			for(i=0;i<myTokenArrayList.size();i++)
 			{
-				token t=myTokenArrayList.get(i);
+				Token t=myTokenArrayList.get(i);
 				if(t.line<=offsetsum)
 				{
 					t.srcString=srcString.substring(0,srcString.lastIndexOf("\\"))+"\\"+incInf.fileNameString;
@@ -890,11 +849,14 @@ class DFA{
 					}
 				}
 			}
+		 }
+		else {//没有头文件
+			//在创建每个token时，src的初值为对应的.c文件，所以这里无需操作
 		}
 		
 		
 	}
-	public void judgeForIdentifier(token t)//判断标识为id_wordtype的单词的具体类型，是否有错
+	public void judgeForIdentifier(Token t)//判断标识为id_wordtype的单词的具体类型，是否有错
 	{
 		if(myDictionary.identifierMap.containsKey(t.value))
 		{
@@ -954,7 +916,7 @@ class DFA{
 			return ;
 		}
 	}
-	public void judgeForOperatorAndSP(token t)//判断运算符的具体类型和分隔符具体类型。这里执行后只会把；看作分隔符，其余初始划分在分隔符中的符号都将变成运算符类型
+	public void judgeForOperatorAndSP(Token t)//判断运算符的具体类型和分隔符具体类型。这里执行后只会把；看作分隔符，其余初始划分在分隔符中的符号都将变成运算符类型
 	{
 		if(myDictionary.operatorMap.containsKey(t.value))
 		{
@@ -969,7 +931,7 @@ class DFA{
 			t.valid=false;
 		}
 	}
-	public void judgeForChar(token t)//判断单字符的合法性
+	public void judgeForChar(Token t)//判断单字符的合法性
 	{
 		t.typedes="字符常量";
 		char arr[]=t.value.toCharArray();
@@ -1049,7 +1011,7 @@ class DFA{
 			break;
 		}
 	}
-	public void judgeForString(token t)//判断string的合法性,未完成，一律认为合法
+	public void judgeForString(Token t)//判断string的合法性,未完成，一律认为合法
 	{
 		t.typedes="字符串常量";
 		
@@ -1118,7 +1080,7 @@ class DFA{
 	{
 		int i=0;
 		int len=myTokenArrayList.size();
-		token t;
+		Token t;
 		for(i=0;i<len;i++)
 		{
 			t=myTokenArrayList.get(i);
@@ -1139,7 +1101,7 @@ class DFA{
 			    root.addContent(tokens);
 			    
 			    for (int i = 0; i < this.myTokenArrayList.size(); i++) {
-			      token word = (token)this.myTokenArrayList.get(i);
+			      Token word = (Token)this.myTokenArrayList.get(i);
 			      
 			      Element elements = new Element("token");
 			      
@@ -1398,6 +1360,7 @@ public class cplScanner implements IMiniCCScanner{
 	/**
 	 * @param args
 	 */
+	public ArrayList<Token> tokens;
 	public cplScanner() {
 		// TODO 自动生成的构造函数存根
 	}
@@ -1419,12 +1382,14 @@ public class cplScanner implements IMiniCCScanner{
 		    
 		    if(isLexAnalysePass)
 		    {
-		    	System.out.println("2. LexAnalyse Succeed!");
+		    	System.out.println("词法分析通过");
 		    	myDFA.outputWordList(oFile,false);
+		    	this.tokens=myDFA.myTokenArrayList;
 		    }
 		    else {
 		    	System.out.println("2. LexAnalyse failed!");
 		    	myDFA.outputWordList(oFile,true);
+		    	this.tokens=myDFA.myTokenArrayList;
 			}
 		}
 		else {
